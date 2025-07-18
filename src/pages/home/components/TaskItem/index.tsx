@@ -7,6 +7,7 @@ interface TaskItemProps {
     done: boolean;
     onToggleDone: () => void;
     onDelete: () => void;
+    canDelete: boolean;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({
@@ -15,6 +16,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                                                done,
                                                onToggleDone,
                                                onDelete,
+                                               canDelete,
                                            }) => {
     return (
         <li
@@ -41,13 +43,15 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 )}
             </div>
 
-            <button
-                onClick={onDelete}
-                className="text-rose-600 hover:text-rose-400 transition-colors ml-2"
-                title="Delete task"
-            >
-                ✖
-            </button>
+            {canDelete && (
+                <button
+                    onClick={onDelete}
+                    className="text-rose-600 hover:text-rose-400 transition-colors ml-2"
+                    title="Delete task"
+                >
+                    ✖
+                </button>
+            )}
         </li>
     );
 };

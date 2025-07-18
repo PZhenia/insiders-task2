@@ -12,8 +12,9 @@ type Task = {
     done: boolean;
 };
 
-type Viewer = {
+type Collaborator = {
     email: string;
+    role: "admin" | "viewer";
 };
 
 type InputProps = {
@@ -55,9 +56,11 @@ const CreateTodoList: React.FC = () => {
     const [listTitleError, setListTitleError] = useState("");
     const [taskTitleError, setTaskTitleError] = useState("");
     const [taskDescriptionError, setTaskDescriptionError] = useState("");
-    const [viewerEmail, setViewerEmail] = useState("");
-    const [viewers, setViewers] = useState<Viewer[]>([]);
-    const [viewerEmailError, setViewerEmailError] = useState("");
+
+    const [collaboratorEmail, setCollaboratorEmail] = useState("");
+    const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+    const [collaboratorEmailError, setCollaboratorEmailError] = useState("");
+    const [collaboratorRole, setCollaboratorRole] = useState<"admin" | "viewer">("viewer");
 
     const navigate = useNavigate();
 
@@ -112,7 +115,7 @@ const CreateTodoList: React.FC = () => {
             const docRef = await addDoc(collection(db, "todoLists"), {
                 title: listTitle.trim(),
                 ownerId: user.uid,
-                collaborators: viewers,
+                collaborators: collaborators,
             });
 
             for (const task of tasks) {
@@ -125,7 +128,7 @@ const CreateTodoList: React.FC = () => {
 
             setListTitle("");
             setTasks([]);
-            setViewers([]);
+            setCollaborators([]);
             navigate("/");
         } catch (e: unknown) {
             if (e instanceof Error) {
@@ -136,37 +139,38 @@ const CreateTodoList: React.FC = () => {
         }
     };
 
-    const addViewer = async () => {
-        setViewerEmailError("");
+    const addCollaborator = async () => {
+        setCollaboratorEmailError("");
         setError(null);
 
-        const emailTrimmed = viewerEmail.trim().toLowerCase();
+        const emailTrimmed = collaboratorEmail.trim().toLowerCase();
 
         if (!emailTrimmed) {
-            setViewerEmailError("Please enter an email");
+            setCollaboratorEmailError("Please enter an email");
             return;
         }
 
-        if (viewers.some((v) => v.email === emailTrimmed)) {
-            setViewerEmailError("This email is already added as viewer");
+        if (collaborators.some((c) => c.email === emailTrimmed)) {
+            setCollaboratorEmailError("This email is already added");
             return;
         }
 
+        // Перевірка існування користувача в системі
         const usersRef = collection(db, "users");
         const q = query(usersRef, where("email", "==", emailTrimmed));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
-            setViewerEmailError("User with this email does not exist");
+            setCollaboratorEmailError("User with this email does not exist");
             return;
         }
 
-        setViewers([...viewers, { email: emailTrimmed }]);
-        setViewerEmail("");
+        setCollaborators([...collaborators, { email: emailTrimmed, role: collaboratorRole }]);
+        setCollaboratorEmail("");
     };
 
-    const removeViewer = (email: string) => {
-        setViewers(viewers.filter((v) => v.email !== email));
+    const removeCollaborator = (email: string) => {
+        setCollaborators(collaborators.filter((c) => c.email !== email));
     };
 
     return (
@@ -264,24 +268,33 @@ const CreateTodoList: React.FC = () => {
                                 <input
                                     type="email"
                                     placeholder="viewer@example.com"
-                                    value={viewerEmail}
-                                    onChange={(e) => setViewerEmail(e.target.value)}
+                                    value={collaboratorEmail}
+                                    onChange={(e) => setCollaboratorEmail(e.target.value)}
                                     className="flex-1 px-4 py-2 rounded-lg border border-sky-300
                                     focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                                 />
+                                <select
+                                    value={collaboratorRole}
+                                    onChange={(e) =>
+                                        setCollaboratorRole(e.target.value as "admin" | "viewer")}
+                                    className="px-3 py-2 rounded-lg border border-sky-300"
+                                >
+                                    <option value="viewer">Viewer</option>
+                                    <option value="admin">Admin</option>
+                                </select>
                                 <button
-                                    onClick={addViewer}
+                                    onClick={addCollaborator}
                                     className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white
                                     rounded-lg transition-colors"
                                 >
                                     Add
                                 </button>
                             </div>
-                            {viewerEmailError && <ErrorMessage message={viewerEmailError} />}
+                            {collaboratorEmailError && <ErrorMessage message={collaboratorEmailError} />}
 
-                            {viewers.length > 0 && (
+                            {collaborators.length > 0 && (
                                 <ul className="mt-3 space-y-1">
-                                    {viewers.map((v) => (
+                                    {collaborators.map((v) => (
                                         <li
                                             key={v.email}
                                             className="flex justify-between items-center bg-sky-100
@@ -289,7 +302,7 @@ const CreateTodoList: React.FC = () => {
                                         >
                                             <span>{v.email}</span>
                                             <button
-                                                onClick={() => removeViewer(v.email)}
+                                                onClick={() => removeCollaborator(v.email)}
                                                 className="text-rose-600 hover:text-rose-400
                                                 transition-colors font-bold"
                                                 title="Remove viewer"

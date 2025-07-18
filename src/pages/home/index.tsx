@@ -37,6 +37,26 @@ const Home: React.FC = () => {
     const [todoLists, setTodoLists] = useState<TodoList[]>([]);
     const [user, setUser] = useState<User | null>(null);
     const [authLoading, setAuthLoading] = useState(true);
+    const [role, setRole] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!user) {
+            setRole(null);
+            return;
+        }
+        const fetchUserRole = async () => {
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("uid", "==", user.uid));
+            const userSnap = await getDocs(q);
+            if (!userSnap.empty) {
+                const data = userSnap.docs[0].data();
+                setRole(data.role || "user");
+            } else {
+                setRole("user");
+            }
+        };
+        fetchUserRole();
+    }, [user]);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -203,14 +223,16 @@ const Home: React.FC = () => {
                                     <h2 className="text-xl font-semibold text-sky-800">
                                         {list.title}
                                     </h2>
-                                    <button
-                                        onClick={() => handleDeleteList(list.id)}
-                                        className="text-rose-800 hover:text-rose-600
+                                    {(user.uid === list.ownerId || role === "admin") && (
+                                        <button
+                                            onClick={() => handleDeleteList(list.id)}
+                                            className="text-rose-800 hover:text-rose-600
                                         transition-colors p-1 rounded-full hover:bg-rose-50"
-                                        title="Delete list"
-                                    >
-                                        ✖
-                                    </button>
+                                            title="Delete list"
+                                        >
+                                            ✖
+                                        </button>
+                                    )}
                                 </div>
 
                                 {list.collaborators.length > 0 && (
@@ -239,12 +261,13 @@ const Home: React.FC = () => {
                                                     toggleTaskDone(list.id, task.id, task.done)
                                                 }
                                                 onDelete={() => handleDeleteTask(list.id, task.id)}
+                                                canDelete={user?.uid === list.ownerId || role === "admin"}
                                             />
                                         ))
                                     )}
                                 </ul>
 
-                                {user.uid === list.ownerId && (
+                                {(user.uid === list.ownerId || role === "admin") && (
                                     <NavLink
                                         to={`/edit-todo-list/${list.id}`}
                                         className="mt-3 inline-block text-sm text-teal-600
