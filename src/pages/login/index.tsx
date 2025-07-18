@@ -4,7 +4,11 @@ import { useNavigate } from "react-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 
-const LoginPage: React.FC = () => {
+import Input from "../../components/UI/atoms/Input";
+import Button from "../../components/UI/atoms/Button";
+import ErrorMessage from "../../components/UI/atoms/ErrorMessage";
+
+const Login: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
@@ -32,36 +36,54 @@ const LoginPage: React.FC = () => {
     };
 
     return (
-        <div className="max-w-md mx-auto mt-20 p-6 bg-white rounded shadow">
-            <h1 className="text-2xl font-bold mb-6 text-center">Log In</h1>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                />
-                {error && <p className="text-red-600">{error}</p>}
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 disabled:opacity-50"
-                >
-                    {loading ? "Please wait..." : "Log In"}
-                </button>
-            </form>
+        <div className="font-nunito min-h-screen bg-sky-50 flex items-center justify-center p-4">
+            <div className="w-full max-w-md">
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-sky-200">
+                    <div className="p-6 bg-sky-800 text-center">
+                        <h1 className="text-2xl font-bold text-gray-200">Welcome Back</h1>
+                        <p className="text-sky-300 mt-1">Log in to your account</p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="p-6 space-y-5">
+                        {error && <ErrorMessage message={error} />}
+
+                        <Input
+                            label="Email"
+                            type="email"
+                            placeholder="your@email.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+
+                        <Input
+                            label="Password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+
+                        <Button type="submit" loading={loading}>
+                            Log In
+                        </Button>
+
+                        <div className="text-center text-sm text-gray-600 pt-2">
+                            Don&apos;t have an account?{" "}
+                            <button
+                                type="button"
+                                onClick={() => navigate("/register")}
+                                className="text-teal-600 hover:text-teal-800 font-medium"
+                            >
+                                Sign up
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     );
 };
 
-export default LoginPage;
+export default Login;

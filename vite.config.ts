@@ -10,5 +10,5 @@ export default defineConfig({
         tsconfigPath: './tsconfig.app.json',
       }
     }),
-  ],
-})
+  ]
+});

@@ -23,20 +23,21 @@ export default function Header() {
     };
 
     return (
-        <header className="bg-white shadow p-4 flex justify-between items-center">
-
+        <header className="font-nunito bg-sky-800 shadow-md p-4 flex justify-between items-center">
             <div className="space-x-4">
                 {!user && (
                     <>
                         <NavLink
                             to="/login"
-                            className="text-indigo-600 hover:underline transition"
+                            className="text-gray-200 hover:text-white px-3 py-1.5 rounded-md
+                            hover:bg-sky-700 transition-colors duration-200"
                         >
-                            LogIn
+                            Log In
                         </NavLink>
                         <NavLink
                             to="/register"
-                            className="text-indigo-600 hover:underline transition"
+                            className="text-gray-200 hover:text-white px-3 py-1.5 rounded-md
+                            hover:bg-sky-700 transition-colors duration-200"
                         >
                             Register
                         </NavLink>
@@ -47,13 +48,15 @@ export default function Header() {
                     <>
                         <NavLink
                             to="/create-todo-list"
-                            className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+                            className="px-4 py-2 bg-teal-500 text-white rounded-md
+                            hover:bg-teal-600 transition-colors duration-200 shadow hover:shadow-md"
                         >
                             Create To-Do List
                         </NavLink>
                         <button
                             onClick={handleLogout}
-                            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                            className="px-4 py-2 bg-rose-800 text-gray-200 rounded-md
+                            hover:bg-rose-700 transition-colors duration-200 ml-2 shadow hover:shadow-md"
                         >
                             LogOut
                         </button>
